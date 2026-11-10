@@ -86,7 +86,7 @@ The frontend expects the API at `http://127.0.0.1:8000/api/`.
 
 ## Demo accounts from seed_demo_data.py
 
-- Admin: `admin@hospital.com` / `admin123`
+- Admin: `admin@gmail.com` / `admin123`
 - Doctor: `dr.smith@hospital.com` / `doctor123`
 - Nurse: `nurse.sarah@hospital.com` / `nurse123`
 - Patient: `patient.john@hospital.com` / `patient123`

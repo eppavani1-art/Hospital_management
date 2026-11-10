@@ -138,7 +138,7 @@ def seed():
     # 6. USER ACCOUNTS WITH UNIFIED CREDENTIALS
     users_to_create = [
         # (username, email, password, first_name, last_name, role, is_superuser, doctor, staff, patient)
-        ("admin", "admin@hospital.com", "admin123", "Hospital", "Administrator", "ADMIN", True, None, None, None),
+        ("admin@gmail.com", "admin@gmail.com", "admin123", "Hospital", "Administrator", "ADMIN", True, None, None, None),
         ("dr_smith", "dr.smith@hospital.com", "doctor123", "John", "Smith", "DOCTOR", False, dr1_obj, None, None),
         ("dr_emily", "dr.emily@hospital.com", "doctor123", "Emily", "Davis", "DOCTOR", False, dr2_obj, None, None),
         ("nurse_sarah", "nurse.sarah@hospital.com", "nurse123", "Sarah", "Jenkins", "NURSE", False, None, nurse1_obj, None),
@@ -320,7 +320,7 @@ def seed():
     print("\nHMS Demo Database Seeding Successfully Completed!")
     print("-------------------------------------------------------")
     print("Standard Demo Logins:")
-    print("  Admin:   admin@hospital.com   / admin123")
+    print("  Admin:   admin@gmail.com      / admin123")
     print("  Doctor:  dr.smith@hospital.com / doctor123")
     print("  Nurse:   nurse.sarah@hospital.com / nurse123")
     print("  Patient: patient.john@hospital.com / patient123")

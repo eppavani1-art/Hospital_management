@@ -19,8 +19,10 @@ SECRET_KEY = os.getenv(
     "rJOUDrp0TibbBCgtuY8C_S-gSqVvjFcL3gB1EKzDSGCJgYyUlPrncN-YhK3wWKpNaeQ"
 )
 
-DEBUG = os.getenv("DEBUG", "False").lower() == "true"
-ALLOWED_HOSTS = ["localhost", "127.0.0.1"]
+is_render = bool(os.getenv("RENDER_EXTERNAL_HOSTNAME") or os.getenv("DATABASE_URL"))
+default_debug = "False" if is_render else "True"
+DEBUG = os.getenv("DEBUG", default_debug).lower() == "true"
+ALLOWED_HOSTS = ["localhost", "127.0.0.1", "0.0.0.0", "testserver"]
 
 ALLOWED_HOSTS += [
     host.strip()
@@ -32,6 +34,8 @@ render_host = os.getenv("RENDER_EXTERNAL_HOSTNAME")
 
 if render_host:
     ALLOWED_HOSTS.append(render_host)
+if is_render:
+    ALLOWED_HOSTS.append(".onrender.com")
 
 
 
@@ -65,7 +69,15 @@ INSTALLED_APPS = [
 
 MIDDLEWARE = [
     "django.middleware.security.SecurityMiddleware",
-    "whitenoise.middleware.WhiteNoiseMiddleware",
+]
+
+try:
+    import whitenoise  # noqa: F401
+    MIDDLEWARE.append("whitenoise.middleware.WhiteNoiseMiddleware")
+except ImportError:
+    pass
+
+MIDDLEWARE += [
     "django.contrib.sessions.middleware.SessionMiddleware",
     "corsheaders.middleware.CorsMiddleware",
     "django.middleware.common.CommonMiddleware",
@@ -154,17 +166,27 @@ USE_TZ = True
 
 STATIC_URL = "/static/"
 STATIC_ROOT = BASE_DIR / "staticfiles"
+has_whitenoise = False
+try:
+    import whitenoise  # noqa: F401
+    has_whitenoise = True
+except ImportError:
+    pass
+
 STORAGES = {
     "default": {
         "BACKEND": "django.core.files.storage.FileSystemStorage",
     },
     "staticfiles": {
-        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage",
+        "BACKEND": "whitenoise.storage.CompressedManifestStaticFilesStorage" if (has_whitenoise and not DEBUG) else "django.contrib.staticfiles.storage.StaticFilesStorage",
     },
 }
+CORS_ALLOW_ALL_ORIGINS = DEBUG
 CORS_ALLOWED_ORIGINS = [
     "http://localhost:5173",
     "http://127.0.0.1:5173",
+    "http://localhost:3000",
+    "http://127.0.0.1:3000",
 ]
 
 frontend_url = os.getenv("FRONTEND_URL")

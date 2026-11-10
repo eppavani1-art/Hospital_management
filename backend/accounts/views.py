@@ -12,6 +12,9 @@ from patients.models import Patient
 from doctors.models import Doctor
 from staff.models import Staff
 
+from django.core.validators import validate_email
+from django.core.exceptions import ValidationError
+from django.contrib.auth.password_validation import validate_password
 
 def ensure_user_profile_linkage(user):
     """
@@ -139,6 +142,8 @@ class LoginView(APIView):
         user = authenticate(username=identifier, password=password)
         if not user:
             user_obj = User.objects.filter(email__iexact=identifier).first()
+            if not user_obj and identifier.lower() in ("admin", "administrator"):
+                user_obj = User.objects.filter(email__iexact="admin@gmail.com").first()
             if user_obj:
                 user = authenticate(username=user_obj.username, password=password)
         if not user:
@@ -229,6 +234,76 @@ class UserListView(generics.ListAPIView):
         return qs.filter(profile__role__iexact=role) if role else qs
 
 
+class AdminCredentialsView(APIView):
+    permission_classes = [IsAdmin]
+
+    def post(self, request):
+        user = request.user
+
+        # Only the primary Django superuser can change credentials
+        if not user.is_superuser:
+            return Response(
+                {"error": "Only the primary administrator can change these credentials."},
+                status=403
+            )
+
+        current_password = request.data.get("current_password", "")
+        new_email = request.data.get("email", "").strip().lower()
+        new_password = request.data.get("new_password", "")
+
+        # Verify current password
+        if not user.check_password(current_password):
+            return Response(
+                {"error": "Current password is incorrect."},
+                status=400
+            )
+
+        # Validate email
+        if not new_email:
+            return Response(
+                {"error": "Email is required."},
+                status=400
+            )
+
+        try:
+            validate_email(new_email)
+        except ValidationError:
+            return Response(
+                {"error": "Enter a valid email address."},
+                status=400
+            )
+
+        # Check duplicate email
+        if User.objects.filter(email__iexact=new_email).exclude(pk=user.pk).exists():
+            return Response(
+                {"error": "This email is already in use."},
+                status=400
+            )
+
+        # Validate new password
+        if new_password:
+            if len(new_password) < 6:
+                return Response(
+                    {"error": "Password must be at least 6 characters long."},
+                    status=400
+                )
+
+        # Update credentials
+        user.email = new_email
+        user.username = new_email
+
+        if new_password:
+            user.set_password(new_password)
+
+        user.save()
+
+        return Response({
+            "message": "Admin credentials updated successfully.",
+            "email": user.email,
+            "username": user.username
+        })
+
+
 class UserToggleActiveView(APIView):
     permission_classes = [IsAdmin]
 
@@ -253,7 +328,7 @@ class UserDetailDestroyView(generics.RetrieveDestroyAPIView):
         from rest_framework import exceptions
         if instance == self.request.user:
             raise exceptions.ValidationError("You cannot delete your own logged-in admin account.")
-        if instance.email == "nithinkumarreddy1538@gmail.com":
+        if instance.is_superuser or instance.email in ["admin@gmail.com", "nithinkumarreddy1538@gmail.com"]:
             raise exceptions.ValidationError("Primary Administrator account cannot be deleted.")
 
         # Clean up linked entity profiles

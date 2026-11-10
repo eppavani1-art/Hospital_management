@@ -7,7 +7,7 @@ function Settings() {
 
   const [settings, setSettings] = useState({
     hospitalName: "CarePulse AI Smart Hospital",
-    contactEmail: "admin@hospital.com",
+    contactEmail: "admin@gmail.com",
     contactPhone: "+91 (0) 98765 43210",
     emergencyAlerts: true,
     emailNotifications: true,

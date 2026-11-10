@@ -8,7 +8,8 @@ from .views import (
     UserToggleActiveView,
     UserDetailDestroyView,
     PatientAssignmentListCreateView,
-    PatientAssignmentDetailView
+    PatientAssignmentDetailView,
+    AdminCredentialsView,
 )
 
 urlpatterns = [
@@ -22,6 +23,12 @@ urlpatterns = [
     path('users/', UserListView.as_view(), name='user-list'),
     path('users/<int:pk>/', UserDetailDestroyView.as_view(), name='user-detail-destroy'),
     path('users/<int:pk>/toggle/', UserToggleActiveView.as_view(), name='user-toggle'),
+
+    path(
+    'admin/credentials/',
+    AdminCredentialsView.as_view(),
+    name='admin-credentials'
+),
 
     # Doctor patient-nurse assignments
     path('assignments/', PatientAssignmentListCreateView.as_view(), name='assignment-list-create'),

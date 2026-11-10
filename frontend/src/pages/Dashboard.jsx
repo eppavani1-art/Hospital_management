@@ -73,22 +73,22 @@ function Dashboard() {
           admissionsRes,
           laboratoryRes,
           pharmacyRes,
-        ] = await Promise.all([
+        ] = await Promise.allSettled([
           API.get("patients/"),
           API.get("doctors/"),
           API.get("appointments/"),
           API.get("admissions/"),
           API.get("laboratory/tests/"),
-          API.get("pharmacy/"),
+          API.get("pharmacy/medicines/"),
         ]);
 
         setCounts({
-          patients: getCount(patientsRes.data),
-          doctors: getCount(doctorsRes.data),
-          appointments: getCount(appointmentsRes.data),
-          admissions: getCount(admissionsRes.data),
-          laboratory: getCount(laboratoryRes.data),
-          pharmacy: getCount(pharmacyRes.data),
+          patients: patientsRes.status === "fulfilled" ? getCount(patientsRes.value.data) : 0,
+          doctors: doctorsRes.status === "fulfilled" ? getCount(doctorsRes.value.data) : 0,
+          appointments: appointmentsRes.status === "fulfilled" ? getCount(appointmentsRes.value.data) : 0,
+          admissions: admissionsRes.status === "fulfilled" ? getCount(admissionsRes.value.data) : 0,
+          laboratory: laboratoryRes.status === "fulfilled" ? getCount(laboratoryRes.value.data) : 0,
+          pharmacy: pharmacyRes.status === "fulfilled" ? getCount(pharmacyRes.value.data) : 0,
         });
       } catch (error) {
         console.error("Dashboard API Error:", error);
@@ -108,6 +108,7 @@ function Dashboard() {
 
     const duration = 1200;
     const startTime = performance.now();
+    let animId;
 
     const animateNumbers = (currentTime) => {
       const progress = Math.min(
@@ -119,28 +120,23 @@ function Dashboard() {
       const easeOut = 1 - Math.pow(1 - progress, 3);
 
       setAnimatedCounts({
-        patients: Math.floor(counts.patients * easeOut),
-        doctors: Math.floor(counts.doctors * easeOut),
-        appointments: Math.floor(
-          counts.appointments * easeOut
-        ),
-        admissions: Math.floor(
-          counts.admissions * easeOut
-        ),
-        laboratory: Math.floor(
-          counts.laboratory * easeOut
-        ),
-        pharmacy: Math.floor(
-          counts.pharmacy * easeOut
-        ),
+        patients: Math.floor((counts.patients || 0) * easeOut),
+        doctors: Math.floor((counts.doctors || 0) * easeOut),
+        appointments: Math.floor((counts.appointments || 0) * easeOut),
+        admissions: Math.floor((counts.admissions || 0) * easeOut),
+        laboratory: Math.floor((counts.laboratory || 0) * easeOut),
+        pharmacy: Math.floor((counts.pharmacy || 0) * easeOut),
       });
 
       if (progress < 1) {
-        requestAnimationFrame(animateNumbers);
+        animId = requestAnimationFrame(animateNumbers);
       }
     };
 
-    requestAnimationFrame(animateNumbers);
+    animId = requestAnimationFrame(animateNumbers);
+    return () => {
+      if (animId) cancelAnimationFrame(animId);
+    };
   }, [counts, loading]);
 
   // =====================================================

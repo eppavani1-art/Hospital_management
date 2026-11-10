@@ -74,7 +74,7 @@ function Settings() {
 
               <input
                 type="email"
-                value="admin@hospital.com"
+                value="admin@gmail.com"
                 readOnly
                 style={styles.input}
               />
