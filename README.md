@@ -9,12 +9,7 @@ The system provides separate modules for managing doctors, patients, appointment
 ## 🚀 Live Project
 
 ### 🌐 Frontend
-https://hospital-management-system-uam9.onrender.com
-
-### ⚙️ Backend API
-https://hospital-backend-ggfo.onrender.com
-
----
+https://hospital-frontend-wmks.onrender.com
 
 ## 📌 Project Overview
 
