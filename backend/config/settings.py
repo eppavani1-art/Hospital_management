@@ -16,7 +16,7 @@ load_dotenv(BASE_DIR / ".env")
 
 SECRET_KEY = os.getenv(
     "DJANGO_SECRET_KEY",
-    "django-insecure-local-development-only"
+    "rJOUDrp0TibbBCgtuY8C_S-gSqVvjFcL3gB1EKzDSGCJgYyUlPrncN-YhK3wWKpNaeQ"
 )
 
 DEBUG = os.getenv("DEBUG", "False").lower() == "true"
